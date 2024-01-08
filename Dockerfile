@@ -1,5 +1,5 @@
 #syntax=docker/dockerfile:1.2
-ARG RUST_VERSION=1.57
+ARG RUST_VERSION=1.72
 FROM rust:${RUST_VERSION}-slim-bookworm as build
 
 # cache mounts below may already exist and owned by root
@@ -29,11 +29,9 @@ RUN \
   --mount=type=cache,id=influxdb_iox_registry,sharing=locked,target=/usr/local/cargo/registry \
   --mount=type=cache,id=influxdb_iox_git,sharing=locked,target=/usr/local/cargo/git \
   --mount=type=cache,id=influxdb_iox_target,sharing=locked,target=/influxdb_iox/target \
-    du -cshx /usr/local/rustup /usr/local/cargo/registry /usr/local/cargo/git /influxdb_iox/target && \
     cargo build --target-dir /influxdb_iox/target --package="$PACKAGE" --profile="$PROFILE" --no-default-features --features="$FEATURES" && \
     objcopy --compress-debug-sections "target/$PROFILE/$PACKAGE" && \
-    cp "/influxdb_iox/target/$PROFILE/$PACKAGE" /root/$PACKAGE && \
-    du -cshx /usr/local/rustup /usr/local/cargo/registry /usr/local/cargo/git /influxdb_iox/target
+    cp "/influxdb_iox/target/$PROFILE/$PACKAGE" /root/$PACKAGE
 
 
 FROM debian:bookworm-slim
